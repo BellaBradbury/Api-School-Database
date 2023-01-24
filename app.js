@@ -4,6 +4,10 @@
 const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
+const routes = require('./routes/routes');
+
+const router = express.Router();
+// app.use('/api', routes);
 
 // connect & test database connection
 const sequelize = new Sequelize({
@@ -30,12 +34,43 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+// async handler
+function asyncHandler(cb){
+  return async (req,res, next) => {
+      try {
+          await cb(req, res, next);
+      } catch(err) {
+          next(err);
+      }
+  }
+}
+
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to the REST API project!',
   });
 });
+
+// GET home page
+router.get('/', asyncHandler( async(req, res) => {
+  res.redirect('/home');
+}));
+
+
+// READ all courses with connected user
+router.get('/courses'), asyncHandler(async (req, res) => {
+  console.log('Here are the courses.'); 
+})
+
+// CREATE a new course
+
+// READ one course with connected user
+
+// UPDATE one course 
+
+// DELETE one course
+
 
 // send 404 if no other route matched
 app.use((req, res) => {
