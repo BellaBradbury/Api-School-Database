@@ -4,10 +4,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
-const routes = require('./routes/routes');
+const models = require('./models');
+
+const { Course, User } = models;
 
 const router = express.Router();
-// app.use('/api', routes);
 
 // connect & test database connection
 const sequelize = new Sequelize({
@@ -35,15 +36,15 @@ const app = express();
 app.use(morgan('dev'));
 
 // async handler
-function asyncHandler(cb){
-  return async (req,res, next) => {
-      try {
-          await cb(req, res, next);
-      } catch(err) {
-          next(err);
-      }
-  }
-}
+// function asyncHandler(cb){
+//   return async (req,res, next) => {
+//       try {
+//           await cb(req, res, next);
+//       } catch(err) {
+//           next(err);
+//       }
+//   }
+// }
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
@@ -52,16 +53,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// GET home page
-router.get('/', asyncHandler( async(req, res) => {
-  res.redirect('/home');
-}));
-
-
 // READ all courses with connected user
-router.get('/courses'), asyncHandler(async (req, res) => {
-  console.log('Here are the courses.'); 
-})
+app.get('/courses', (req, res) => {
+  res.json({
+    message: 'Welcome to the courses page!',
+  });
+});
 
 // CREATE a new course
 
