@@ -35,17 +35,6 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// async handler
-// function asyncHandler(cb){
-//   return async (req,res, next) => {
-//       try {
-//           await cb(req, res, next);
-//       } catch(err) {
-//           next(err);
-//       }
-//   }
-// }
-
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
   res.json({
@@ -55,9 +44,7 @@ app.get('/', (req, res) => {
 
 // READ all courses with connected user
 app.get('/courses', (req, res) => {
-  res.json({
-    message: 'Welcome to the courses page!',
-  });
+  res.json(Course);
 });
 
 // CREATE a new course
