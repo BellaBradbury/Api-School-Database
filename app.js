@@ -4,8 +4,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
-const models = require('./models');
 
+const models = require('./models');
 const { Course, User } = models;
 
 const router = express.Router();
@@ -42,9 +42,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// READ all users
+app.get('/api/users', async (req, res) => {
+  const users = await User.findAll();
+  res.json(users);
+});
+
+// CREATE a new user
+
 // READ all courses with connected user
-app.get('/courses', (req, res) => {
-  res.json(Course);
+app.get('/api/courses', async (req, res) => {
+  const courses = await Course.findAll();
+  res.json(courses);
 });
 
 // CREATE a new course
