@@ -35,6 +35,9 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+
+app.use(express.json());
+
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
   res.json({
@@ -57,13 +60,46 @@ app.get('/api/courses', async (req, res) => {
 });
 
 // CREATE a new course
+app.post('/api/courses', async (req, res) => {
+  const course = await Course.create({
+    title: req.body.title,
+    description: req.body.description,
+    estimatedTime: req.body.estimatedTime,
+    materialsNeeded: req.body.materialsNeeded,
+    userId: req.body.userId
+  });
+  res.json(course);
+});
 
 // READ one course with connected user
+app.get('/api/courses/:id', async (req, res) => {
+  const course = await Course.findByPk(req.params.id);
+  res.json(course);
+})
 
 // UPDATE one course 
+app.put('/api/courses/:id', async (req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    if(course) {
+      course.title = req.body.title;
+      course.description = req.body.description;
+      course.estimatedTime = req.body.estimatedTime;
+      course.materialsNeeded = req.body.materialsNeeded;
+      course.userId = req.body.userId;
+
+      await Course.update(course);
+      res.status(204);
+    } else {
+      res.status(404).json({message: "Course Not Found"});
+    }
+  res.json(course);
+})
 
 // DELETE one course
-
+app.delete('/api/courses/:id', async (req, res) => {
+  const course = await Course.findByPk(req.params.id);
+  res.json(course);
+})
 
 // send 404 if no other route matched
 app.use((req, res) => {
