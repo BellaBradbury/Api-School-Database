@@ -61,13 +61,12 @@ app.get('/', asyncHandler( async (req, res) => {
 // READ all users
 app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
-
-  res.json({
-    name: user.name,
-    username: user.username
-  });
-  // const users = await User.findAll();
-  // res.status(200).json(users);
+  // res.json({
+  //   name: user.name,
+  //   username: user.username
+  // });
+  const users = await User.findAll();
+  res.status(200).json(users);
 }));
 
 // CREATE a new user
