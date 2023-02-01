@@ -88,7 +88,7 @@ app.post('/api/courses', asyncHandler( async (req, res) => {
     materialsNeeded: req.body.materialsNeeded,
     userId: req.body.userId
   });
-  res.status(201).setHeader('Location', `/api/courses/${res.param.id}`).end();
+  res.status(201).setHeader('Location', `/api/courses/${course.id}`).end();
 }));
 
 // READ one course with connected user
@@ -108,11 +108,10 @@ app.put('/api/courses/:id', asyncHandler( async (req, res) => {
       course.userId = req.body.userId;
 
       await Course.update(course);
-      res.status(204);
+      res.status(204).end();
     } else {
       res.status(404).json({message: "Course Not Found"});
     }
-  res.json(course);
 }));
 
 // DELETE one course
