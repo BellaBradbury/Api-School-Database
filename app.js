@@ -107,7 +107,7 @@ app.put('/api/courses/:id', asyncHandler( async (req, res) => {
     course.materialsNeeded = req.body.materialsNeeded;
     course.userId = req.body.userId;
 
-    await Course.update(course);
+    await course.update(req.body);
     res.status(204).end();
   } else {
     res.status(404).json({message: "Course Not Found"});
