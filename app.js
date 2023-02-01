@@ -35,32 +35,52 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-
+// setup express
 app.use(express.json());
 
+// async handler
+function asyncHandler(cb){
+  return async (req,res, next) => {
+      try {
+          await cb(req, res, next);
+      } catch(err) {
+          next(err);
+      }
+  }
+}
+
 // setup a friendly greeting for the root route
-app.get('/', (req, res) => {
+app.get('/', asyncHandler( async (req, res) => {
   res.json({
     message: 'Welcome to the REST API project!',
   });
-});
+}));
 
 // READ all users
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', asyncHandler( async (req, res) => {
   const users = await User.findAll();
-  res.json(users);
-});
+  res.status(200).json(users);
+}));
 
 // CREATE a new user
+app.post('/api/users', asyncHandler( async (req, res) => {
+  const user = await User.create({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    emailAddress: req.body.emailAddress,
+    password: req.body.password
+  });
+  res.status(201).setHeader('Location', '/').end();
+}));
 
 // READ all courses with connected user
-app.get('/api/courses', async (req, res) => {
+app.get('/api/courses', asyncHandler( async (req, res) => {
   const courses = await Course.findAll();
-  res.json(courses);
-});
+  res.status(200).json(courses);
+}));
 
 // CREATE a new course
-app.post('/api/courses', async (req, res) => {
+app.post('/api/courses', asyncHandler( async (req, res) => {
   const course = await Course.create({
     title: req.body.title,
     description: req.body.description,
@@ -68,17 +88,17 @@ app.post('/api/courses', async (req, res) => {
     materialsNeeded: req.body.materialsNeeded,
     userId: req.body.userId
   });
-  res.json(course);
-});
+  res.status(201).setHeader('Location', `/api/courses/${res.param.id}`).end();
+}));
 
 // READ one course with connected user
-app.get('/api/courses/:id', async (req, res) => {
+app.get('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
   res.json(course);
-})
+}));
 
 // UPDATE one course 
-app.put('/api/courses/:id', async (req, res) => {
+app.put('/api/courses/:id', asyncHandler( async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     if(course) {
       course.title = req.body.title;
@@ -93,13 +113,13 @@ app.put('/api/courses/:id', async (req, res) => {
       res.status(404).json({message: "Course Not Found"});
     }
   res.json(course);
-})
+}));
 
 // DELETE one course
-app.delete('/api/courses/:id', async (req, res) => {
+app.delete('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
   res.json(course);
-})
+}));
 
 // send 404 if no other route matched
 app.use((req, res) => {
