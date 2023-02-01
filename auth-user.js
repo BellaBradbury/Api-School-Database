@@ -13,7 +13,7 @@ exports.authenticateUser = async (req, res, next) => {
 
     if(credentials) {
         // checks to see if a username matches and retrieves it
-        const user = await User.findOne({ where: {username: credentials.emailAddress }});
+        const user = await User.findOne({ where: {emailAddress: credentials.name }});
         
         if(user) {
             // compares the given password with the known password

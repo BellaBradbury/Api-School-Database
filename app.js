@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 
 const models = require('./models');
 const { Course, User } = models;
+const { authenticateUser } = require('./auth-user');
 
 const router = express.Router();
 
@@ -58,9 +59,15 @@ app.get('/', asyncHandler( async (req, res) => {
 }));
 
 // READ all users
-app.get('/api/users', asyncHandler( async (req, res) => {
-  const users = await User.findAll();
-  res.status(200).json(users);
+app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
+  const user = req.currentUser;
+
+  res.json({
+    name: user.name,
+    username: user.username
+  });
+  // const users = await User.findAll();
+  // res.status(200).json(users);
 }));
 
 // CREATE a new user
