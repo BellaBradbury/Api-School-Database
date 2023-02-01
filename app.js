@@ -4,6 +4,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
+const bcrypt = require('bcrypt');
 
 const models = require('./models');
 const { Course, User } = models;
@@ -79,6 +80,8 @@ app.post('/api/users', asyncHandler( async (req, res) => {
   }
   if(!user.password){
     errors.push('Please provide a password');
+  } else {
+    user.password = bcrypt.hashSync(user.password, 12);
   }
 
   // counts and displays errors
