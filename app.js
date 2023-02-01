@@ -99,19 +99,19 @@ app.get('/api/courses/:id', asyncHandler( async (req, res) => {
 
 // UPDATE one course 
 app.put('/api/courses/:id', asyncHandler( async (req, res) => {
-    const course = await Course.findByPk(req.params.id);
-    if(course) {
-      course.title = req.body.title;
-      course.description = req.body.description;
-      course.estimatedTime = req.body.estimatedTime;
-      course.materialsNeeded = req.body.materialsNeeded;
-      course.userId = req.body.userId;
+  const course = await Course.findByPk(req.params.id);
+  if(course) {
+    course.title = req.body.title;
+    course.description = req.body.description;
+    course.estimatedTime = req.body.estimatedTime;
+    course.materialsNeeded = req.body.materialsNeeded;
+    course.userId = req.body.userId;
 
-      await Course.update(course);
-      res.status(204).end();
-    } else {
-      res.status(404).json({message: "Course Not Found"});
-    }
+    await Course.update(course);
+    res.status(204).end();
+  } else {
+    res.status(404).json({message: "Course Not Found"});
+  }
 }));
 
 // DELETE one course
