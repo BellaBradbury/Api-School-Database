@@ -64,13 +64,30 @@ app.get('/api/users', asyncHandler( async (req, res) => {
 
 // CREATE a new user
 app.post('/api/users', asyncHandler( async (req, res) => {
-  const user = await User.create({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    emailAddress: req.body.emailAddress,
-    password: req.body.password
-  });
-  res.status(201).setHeader('Location', '/').end();
+  const user = req.body;
+
+  // possible validaiton errors
+  const errors = [];
+  if(!user.firstName){
+    errors.push('Please provide a first name');
+  }
+  if(!user.lastName){
+    errors.push('Please provide a last name');
+  }
+  if(!user.emailAddress){
+    errors.push('Please provide an email address');
+  }
+  if(!user.password){
+    errors.push('Please provide a password');
+  }
+
+  // counts and displays errors
+  if(errors.length > 0) {
+    res.status(400).json({ errors });
+  } else {
+    await User.create(user);
+    res.status(201).setHeader('Location', '/').end();
+  }
 }));
 
 // READ all courses with connected user
@@ -81,14 +98,27 @@ app.get('/api/courses', asyncHandler( async (req, res) => {
 
 // CREATE a new course
 app.post('/api/courses', asyncHandler( async (req, res) => {
-  const course = await Course.create({
-    title: req.body.title,
-    description: req.body.description,
-    estimatedTime: req.body.estimatedTime,
-    materialsNeeded: req.body.materialsNeeded,
-    userId: req.body.userId
-  });
-  res.status(201).setHeader('Location', `/api/courses/${course.id}`).end();
+  const course = req.body;
+
+  // possible validaiton errors
+  const errors = [];
+  if(!course.title){
+    errors.push('Please provide a title');
+  }
+  if(!course.description){
+    errors.push('Please provide a description');
+  }
+  if(!course.userId){
+    errors.push('Please provide a user ID');
+  }
+
+  // counts and displays errors
+  if(errors.length > 0) {
+    res.status(400).json({ errors });
+  } else {
+    await Course.create(course);
+    res.status(201).setHeader('Location', `/api/courses/${course.id}`).end();
+  }
 }));
 
 // READ one course with connected user
@@ -103,16 +133,29 @@ app.get('/api/courses/:id', asyncHandler( async (req, res) => {
 
 // UPDATE one course 
 app.put('/api/courses/:id', asyncHandler( async (req, res) => {
-  const course = await Course.findByPk(req.params.id);
-  if(course) {
-    course.title = req.body.title;
-    course.description = req.body.description;
-    course.estimatedTime = req.body.estimatedTime;
-    course.materialsNeeded = req.body.materialsNeeded;
-    course.userId = req.body.userId;
+  const oneCourse = await Course.findByPk(req.params.id);
+  if(oneCourse) {
+    const course = req.body;
 
-    await course.update(req.body);
-    res.status(204).end();
+    // possible validaiton errors
+    const errors = [];
+    if(!course.title){
+      errors.push('Please provide a title');
+    }
+    if(!course.description){
+      errors.push('Please provide a description');
+    }
+    if(!course.userId){
+      errors.push('Please provide a user ID');
+    }
+  
+    // counts and displays errors
+    if(errors.length > 0) {
+      res.status(400).json({ errors });
+    } else {
+      await oneCourse.update(course);
+      res.status(204).end();
+    }
   } else {
     res.status(404).json({message: "Course Not Found"});
   }
