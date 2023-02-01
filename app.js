@@ -94,7 +94,11 @@ app.post('/api/courses', asyncHandler( async (req, res) => {
 // READ one course with connected user
 app.get('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
-  res.json(course);
+  if(course) {
+    res.status(200).json(course);
+  } else {
+    res.status(404).json({message: "Course Not Found"});
+  }
 }));
 
 // UPDATE one course 
@@ -117,7 +121,8 @@ app.put('/api/courses/:id', asyncHandler( async (req, res) => {
 // DELETE one course
 app.delete('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
-  res.json(course);
+  await course.destroy(course);
+  res.status(204).end();
 }));
 
 // send 404 if no other route matched
