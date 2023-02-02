@@ -61,7 +61,12 @@ app.get('/', asyncHandler( async (req, res) => {
 // READ all users
 app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
-  res.status(200).json(user);
+  res.status(200).json({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    emailAddress: user.emailAddress
+  });
 }));
 
 // CREATE a new user
@@ -106,7 +111,21 @@ app.post('/api/users', ( async (req, res, next) => {
 app.get('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
   const courses = await Course.findAll();
-  res.status(200).json(courses);
+
+  let courseArray = [];
+  for (let i=0; i < courses.length; i++) {
+    let course = courses[i];
+    let info = ({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      estimatedTime: course.estimatedTime,
+      materialsNeeded: course.materialsNeeded
+    });
+    courseArray.push(info);
+  }
+
+  res.status(200).json(courseArray);
 }));
 
 // CREATE a new course
@@ -139,7 +158,13 @@ app.post('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
 app.get('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
   if(course) {
-    res.status(200).json(course);
+    res.status(200).json({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      estimatedTime: course.estimatedTime,
+      materialsNeeded: course.materialsNeeded
+    });
   } else {
     res.status(404).json({message: "Course Not Found"});
   }
