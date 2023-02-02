@@ -65,8 +65,7 @@ app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
   //   name: user.name,
   //   username: user.username
   // });
-  const users = await User.findAll();
-  res.status(200).json(users);
+  res.status(200).json(user);
 }));
 
 // CREATE a new user
