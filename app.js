@@ -107,7 +107,7 @@ app.get('/api/courses', asyncHandler( async (req, res) => {
 
 // CREATE a new course
 app.post('/api/courses', asyncHandler( async (req, res) => {
-  const course = req.body;
+  let course = req.body;
 
   // possible validaiton errors
   const errors = [];
@@ -125,7 +125,7 @@ app.post('/api/courses', asyncHandler( async (req, res) => {
   if(errors.length > 0) {
     res.status(400).json({ errors });
   } else {
-    await Course.create(course);
+    course = await Course.create(course);
     res.status(201).setHeader('Location', `/api/courses/${course.id}`).end();
   }
 }));
