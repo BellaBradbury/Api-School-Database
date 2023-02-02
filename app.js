@@ -99,7 +99,10 @@ app.post('/api/users', ( async (req, res, next) => {
       res.status(201).setHeader('Location', '/').end();
     }
   } catch(error) {
-    if(error.name === 'SequelizeUniqueConstraintError') {
+    if(error.name === 'SequelizeValidationError') {
+      res.status(400).json({ message: 'Email address must be valid.' });
+      next(error);
+    } else if (error.name === 'SequelizeUniqueConstraintError'){
       res.status(400).json({ message: 'Email address must be unique.' });
       next(error);
     }
@@ -108,8 +111,7 @@ app.post('/api/users', ( async (req, res, next) => {
 }));
 
 // READ all courses with connected user
-app.get('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
-  const user = req.currentUser;
+app.get('/api/courses', asyncHandler( async (req, res) => {
   const courses = await Course.findAll();
 
   let courseArray = [];
@@ -159,13 +161,18 @@ app.post('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
 app.get('/api/courses/:id', asyncHandler( async (req, res) => {
   const course = await Course.findByPk(req.params.id);
   if(course) {
+    const user = User.findOne({ where: {id: course.userId}});
     res.status(200).json({
       id: course.id,
       title: course.title,
       description: course.description,
       estimatedTime: course.estimatedTime,
       materialsNeeded: course.materialsNeeded,
-      userId: course.userId
+      userId: course.userId,
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.emailAddress
     });
   } else {
     res.status(404).json({message: "Course Not Found"});
@@ -218,6 +225,17 @@ app.delete('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) 
     res.status(403).json({message: "You are not authorized to delete this course"});
   }
 }));
+
+                        app.delete('/api/users/:id', asyncHandler( async (req, res) => {
+                          const course = await User.findByPk(req.params.id);
+                            await course.destroy(course);
+                            res.status(204).end();
+                        }));
+
+                        app.get('/api/users/all', asyncHandler( async (req, res) => {
+                          const course = await User.findAll();
+                            res.json(course)
+                        }));
 
 // send 404 if no other route matched
 app.use((req, res) => {

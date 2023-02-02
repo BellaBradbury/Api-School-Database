@@ -13,14 +13,17 @@ module.exports = (sequelize) => {
         type: Sequelize.STRING
       },
       lastName: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       emailAddress: {
         type: Sequelize.STRING,
-        unique: true
+        unique: true,
+        validate: {
+          isEmail: true
+        }
       },
       password: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       }
     }, { sequelize });
   
