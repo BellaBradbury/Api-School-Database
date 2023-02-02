@@ -61,10 +61,6 @@ app.get('/', asyncHandler( async (req, res) => {
 // READ all users
 app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
-  // res.json({
-  //   name: user.name,
-  //   username: user.username
-  // });
   res.status(200).json(user);
 }));
 
@@ -99,13 +95,15 @@ app.post('/api/users', asyncHandler( async (req, res) => {
 }));
 
 // READ all courses with connected user
-app.get('/api/courses', asyncHandler( async (req, res) => {
+app.get('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
+  const user = req.currentUser;
   const courses = await Course.findAll();
   res.status(200).json(courses);
 }));
 
 // CREATE a new course
-app.post('/api/courses', asyncHandler( async (req, res) => {
+app.post('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
+  const user = req.currentUser;
   let course = req.body;
 
   // possible validaiton errors
@@ -140,7 +138,8 @@ app.get('/api/courses/:id', asyncHandler( async (req, res) => {
 }));
 
 // UPDATE one course 
-app.put('/api/courses/:id', asyncHandler( async (req, res) => {
+app.put('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
+  const user = req.currentUser;
   const oneCourse = await Course.findByPk(req.params.id);
   if(oneCourse) {
     const course = req.body;
@@ -170,7 +169,8 @@ app.put('/api/courses/:id', asyncHandler( async (req, res) => {
 }));
 
 // DELETE one course
-app.delete('/api/courses/:id', asyncHandler( async (req, res) => {
+app.delete('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
+  const user = req.currentUser;
   const course = await Course.findByPk(req.params.id);
   await course.destroy(course);
   res.status(204).end();
