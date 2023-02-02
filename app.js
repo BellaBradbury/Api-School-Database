@@ -226,17 +226,6 @@ app.delete('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) 
   }
 }));
 
-                        app.delete('/api/users/:id', asyncHandler( async (req, res) => {
-                          const course = await User.findByPk(req.params.id);
-                            await course.destroy(course);
-                            res.status(204).end();
-                        }));
-
-                        app.get('/api/users/all', asyncHandler( async (req, res) => {
-                          const course = await User.findAll();
-                            res.json(course)
-                        }));
-
 // send 404 if no other route matched
 app.use((req, res) => {
   res.status(404).json({
