@@ -112,23 +112,20 @@ app.post('/api/users', ( async (req, res, next) => {
 
 // READ all courses with connected user
 app.get('/api/courses', asyncHandler( async (req, res) => {
-  const courses = await Course.findAll();
+   const courses = await Course.findAll({
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName', 'emailAddress'],
+        as: 'teacher'
+      }
+    ],
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  });
 
-  let courseArray = [];
-  for (let i=0; i < courses.length; i++) {
-    let course = courses[i];
-    let info = ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded,
-      userId: course.userId
-    });
-    courseArray.push(info);
-  }
-
-  res.status(200).json(courseArray);
+  res.status(200).json(courses);
 }));
 
 // CREATE a new course
