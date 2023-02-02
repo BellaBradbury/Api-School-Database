@@ -65,33 +65,41 @@ app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
 }));
 
 // CREATE a new user
-app.post('/api/users', asyncHandler( async (req, res) => {
-  const user = req.body;
+app.post('/api/users', ( async (req, res, next) => {
+  try {
+    const user = req.body;
 
-  // possible validaiton errors
-  const errors = [];
-  if(!user.firstName){
-    errors.push('Please provide a first name');
-  }
-  if(!user.lastName){
-    errors.push('Please provide a last name');
-  }
-  if(!user.emailAddress){
-    errors.push('Please provide an email address');
-  }
-  if(!user.password){
-    errors.push('Please provide a password');
-  } else {
-    user.password = bcrypt.hashSync(user.password, 12);
+    // possible validaiton errors
+    const errors = [];
+    if(!user.firstName){
+      errors.push('Please provide a first name');
+    }
+    if(!user.lastName){
+      errors.push('Please provide a last name');
+    }
+    if(!user.emailAddress){
+      errors.push('Please provide an email address');
+    }
+    if(!user.password){
+      errors.push('Please provide a password');
+    } else {
+      user.password = bcrypt.hashSync(user.password, 12);
+    }
+  
+    // counts and displays errors
+    if(errors.length > 0) {
+      res.status(400).json({ errors });
+    } else {
+      await User.create(user);
+      res.status(201).setHeader('Location', '/').end();
+    }
+  } catch(error) {
+    if(error.name === 'SequelizeUniqueConstraintError') {
+      res.status(400).json({ message: 'Email address must be unique.' });
+      next(error);
+    }
   }
 
-  // counts and displays errors
-  if(errors.length > 0) {
-    res.status(400).json({ errors });
-  } else {
-    await User.create(user);
-    res.status(201).setHeader('Location', '/').end();
-  }
 }));
 
 // READ all courses with connected user
