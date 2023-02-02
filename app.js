@@ -120,7 +120,8 @@ app.get('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
       title: course.title,
       description: course.description,
       estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded
+      materialsNeeded: course.materialsNeeded,
+      userId: course.userId
     });
     courseArray.push(info);
   }
@@ -163,7 +164,8 @@ app.get('/api/courses/:id', asyncHandler( async (req, res) => {
       title: course.title,
       description: course.description,
       estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded
+      materialsNeeded: course.materialsNeeded,
+      userId: course.userId
     });
   } else {
     res.status(404).json({message: "Course Not Found"});
@@ -174,30 +176,34 @@ app.get('/api/courses/:id', asyncHandler( async (req, res) => {
 app.put('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
   const oneCourse = await Course.findByPk(req.params.id);
-  if(oneCourse) {
-    const course = req.body;
-
-    // possible validaiton errors
-    const errors = [];
-    if(!course.title){
-      errors.push('Please provide a title');
-    }
-    if(!course.description){
-      errors.push('Please provide a description');
-    }
-    if(!course.userId){
-      errors.push('Please provide a user ID');
-    }
+  if(user.id === oneCourse.userId) {
+    if(oneCourse) {
+      const course = req.body;
   
-    // counts and displays errors
-    if(errors.length > 0) {
-      res.status(400).json({ errors });
+      // possible validaiton errors
+      const errors = [];
+      if(!course.title){
+        errors.push('Please provide a title');
+      }
+      if(!course.description){
+        errors.push('Please provide a description');
+      }
+      if(!course.userId){
+        errors.push('Please provide a user ID');
+      }
+    
+      // counts and displays errors
+      if(errors.length > 0) {
+        res.status(400).json({ errors });
+      } else {
+        await oneCourse.update(course);
+        res.status(204).end();
+      }
     } else {
-      await oneCourse.update(course);
-      res.status(204).end();
+      res.status(404).json({message: "Course Not Found"});
     }
   } else {
-    res.status(404).json({message: "Course Not Found"});
+    res.status(403).json({message: "You are not authorized to update this course"});
   }
 }));
 
@@ -205,8 +211,12 @@ app.put('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) => 
 app.delete('/api/courses/:id', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
   const course = await Course.findByPk(req.params.id);
-  await course.destroy(course);
-  res.status(204).end();
+  if(user.id === course.userId) {
+    await course.destroy(course);
+    res.status(204).end();
+  } else {
+    res.status(403).json({message: "You are not authorized to delete this course"});
+  }
 }));
 
 // send 404 if no other route matched
