@@ -58,7 +58,7 @@ app.get('/', asyncHandler( async (req, res) => {
   });
 }));
 
-// READ all users
+// READ authenticated user
 app.get('/api/users', authenticateUser, asyncHandler( async (req, res) => {
   const user = req.currentUser;
   res.status(200).json({
@@ -159,21 +159,24 @@ app.post('/api/courses', authenticateUser, asyncHandler( async (req, res) => {
 
 // READ one course with connected user
 app.get('/api/courses/:id', asyncHandler( async (req, res) => {
-  const course = await Course.findByPk(req.params.id);
+  const course = await Course.findOne({
+    where: {
+      id: req.params.id
+    },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName', 'emailAddress'],
+        as: 'teacher'
+      }
+    ],
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  });
+
   if(course) {
-    const user = User.findOne({ where: {id: course.userId}});
-    res.status(200).json({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      estimatedTime: course.estimatedTime,
-      materialsNeeded: course.materialsNeeded,
-      userId: course.userId,
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      emailAddress: user.emailAddress
-    });
+    res.status(200).json(course);
   } else {
     res.status(404).json({message: "Course Not Found"});
   }
